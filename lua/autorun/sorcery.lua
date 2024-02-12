@@ -25,14 +25,6 @@ function SORCERY:ChatPrintName(ply, msg)
 	ply:ChatPrint(SORCERY.PrintName..": "..msg)
 end
 
-function SORCERY:StringLower(str)
-	local result = ""
-	for id, code in utf8.codes(str) do
-		result = result..(hook.Run("SORCERY(StringLowerSymbol)", id, code, str) or string.char(code))
-	end
-	return result
-end
-
 function SORCERY:ShiftTable(tbl)
 	local lastkey = 1
 	for key, value in pairs(tbl)do
@@ -46,6 +38,33 @@ function SORCERY:ShiftTable(tbl)
 	end
 	return tbl
 end
+
+--[[
+:String Lowering
+
+Thanks to noaccess, for pointing me to more performance-friendly approach described in https://github.com/Be1zebub/Small-GLua-Things/blob/master/sh_utf8.lua
+--]]
+--\\String Lowering
+SORCERY.String = SORCERY.String or {}
+SORCERY.String.StringPattern = "[^%c%d]*"
+
+SORCERY.String.StringLowerMeta = {}
+setmetatable(SORCERY.String.StringLowerMeta, {
+	__index = function(self, char)
+		return rawget(self, char) or string.lower(char)
+	end
+})
+
+function SORCERY:StringLower(str)
+	return (string.gsub(str, SORCERY.String.StringPattern, SORCERY.String.StringLowerMeta))
+end
+
+function SORCERY:RegisterStringLowerCodes(start, stop, difference)
+	for code = start, stop do
+		SORCERY.String.StringLowerMeta[string.char(code)] = string.char(code + difference)
+	end
+end
+--//
 
 --[[
 SORCERY.Spells={
@@ -472,7 +491,7 @@ hook.Add("SORCERY(HaltSpell)", "SORCERY", function(failcode, funcname)
 end)
 
 hook.Add("SORCERY(OnRunError)", "SORCERY", function(msg)
-	MsgC(Color(255,0,0),"*Sorcery Lua Error:", msg, "\n")
+	MsgC(Color(255,0,0), "*Sorcery Lua Error:", msg, "\n")
 	if(IsValid(SORCERY_SPELL.caster))then
 		SORCERY:ChatPrintName(SORCERY_SPELL.caster, "Lua error!")
 	end

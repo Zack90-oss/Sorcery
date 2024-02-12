@@ -1,11 +1,7 @@
 SORCERY.SpellLangsAliases["english"] = "en"
 SORCERY.SpellLangsAliases["russian"] = "ru"
 
-hook.Add("SORCERY(StringLowerSymbol)", "SORCERYLanguage(en)", function(id, code, str)
-	if(code >= 65 and code <= 90)then
-		return string.char(code + 32)
-	end
-end)
+SORCERY:RegisterStringLowerCodes(65, 90, 32)	--From A to Z, look at utf-8 table to create your own lowerings
 
 SORCERY.SpellLangs["en"] = SORCERY.SpellLangs["en"] or {}
 local l = SORCERY.SpellLangs["en"]
