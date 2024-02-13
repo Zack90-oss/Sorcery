@@ -25,26 +25,15 @@ function SORCERY:ChatPrintName(ply, msg)
 	ply:ChatPrint(SORCERY.PrintName..": "..msg)
 end
 
-function SORCERY:ShiftTable(tbl)
-	local lastkey = 1
-	for key, value in pairs(tbl)do
-		if(key - 1 > lastkey)then
-			tbl[lastkey + 1] = value
-			tbl[key] = nil
-			lastkey = lastkey + 1
-		else
-			lastkey = key
-		end
-	end
-	return tbl
-end
-
+--\\String Lowering
 --[[
 :String Lowering
 
 Thanks to noaccess, for pointing me to more performance-friendly approach described in https://github.com/Be1zebub/Small-GLua-Things/blob/master/sh_utf8.lua
+https://www.charset.org/utf-8
+
+TODO; actually check perfomances
 --]]
---\\String Lowering
 SORCERY.String = SORCERY.String or {}
 SORCERY.String.StringPattern = "[^%c%d]*"
 
@@ -63,6 +52,58 @@ function SORCERY:RegisterStringLowerCodes(start, stop, difference)
 	for code = start, stop do
 		SORCERY.String.StringLowerMeta[string.char(code)] = string.char(code + difference)
 	end
+end
+--//
+
+--\\Utils
+SORCERY.Utils = SORCERY.Utils or {}
+
+-- SORCERY.Utils:SetSorceryTable;
+-- METHOD: Sets the entire "SORCERY_SpellTable" key which will be indexable and setable by the spell
+function SORCERY.Utils:SetSorceryTable(target, value)
+	target.SORCERY_SpellTable = value
+end
+
+-- SORCERY.Utils:GetSorceryTableValue;
+-- METHOD: you perfectly understand what this is
+function SORCERY.Utils:GetSorceryTableValue(target, key)
+	target.SORCERY_SpellTable = target.SORCERY_SpellTable or {}
+	return target.SORCERY_SpellTable[key]
+end
+
+-- SORCERY.Utils:SetSorceryTableValue;
+-- METHOD: Adds value any target table(Entity or anything else) under the "SORCERY_SpellTable" key which will be indexable and setable by the spell
+function SORCERY.Utils:SetSorceryTableValue(target, key, value)
+	target.SORCERY_SpellTable = target.SORCERY_SpellTable or {}
+	target.SORCERY_SpellTable[key] = value
+end
+
+function SORCERY.Utils:GetSorceryTableSize(target)	--not table.Count()
+	target.SORCERY_SpellTable = target.SORCERY_SpellTable or {}
+	return #target.SORCERY_SpellTable
+end
+
+-- SORCERY.Utils:AddToSorceryTable;
+-- METHOD: Adds table's contents to any target table(Entity or anything else) under the "SORCERY_SpellTable" key which will be indexable and setable by the spell
+function SORCERY.Utils:AddTableToSorceryTable(target, addtable)
+	target.SORCERY_SpellTable = target.SORCERY_SpellTable or {}
+	for key, value in pairs(addtable)do
+		target.SORCERY_SpellTable[key] = value
+	end
+end
+
+function SORCERY.Utils:ShiftTable(tbl)
+	local lastkey = 0
+	for key, value in pairs(tbl)do
+		if(key - 1 > lastkey)then
+			tbl[lastkey + 1] = value
+			tbl[key] = nil
+			lastkey = lastkey + 1
+		else
+			lastkey = key
+		end
+	end
+	return tbl
 end
 --//
 
@@ -602,7 +643,7 @@ end)
 --//
 
 if(SERVER)then
-	local cf = SORCERY:TranslateIncantationToCode([[from my eyes and my own look with `123` multiplied, give the trace and say it]], nil)
+	local cf = SORCERY:TranslateIncantationToCode([[from my eyes and my own look with `123` multiplied, give the trace, which "Entity" you will get and say it]], nil)
 	print(cf)
 	SORCERY:RunCompiledIncantation(SORCERY:CompileIncantationCode(cf), Entity(1), nil, nil, nil)
 end

@@ -2,13 +2,15 @@
 -- { stack - stack of the spell }
 -- { caster - player, who casted the spell }
 
--- SORCERY_FUNC; Executing functions, Alias to SORCERY.SpellFunctions
-
---TODO; Make errors occur from here, any exceptions will be marked as "Unknown error"
+-- SORCERY_FUNC; INTERNAL. Executing functions, Alias to SORCERY.SpellFunctions
+-- You should call SORCERY_CF(funcname, preargs) anyways
 
 SORCERY_ClassCheckFunctionsInited = true	--I mean, if something really fucks up and this file is not executed first..
 SORCERY.ClassCheckFunctions = SORCERY.ClassCheckFunctions or {}
 local cc = SORCERY.ClassCheckFunctions
+
+SORCERY.SpellSubscriptableTypes = SORCERY.SpellSubscriptableTypes or {}
+local ss = SORCERY.SpellSubscriptableTypes
 
 --\\locals
 local function compileMethodCheck(method, cannumber)
@@ -25,8 +27,7 @@ local function compileMethodCheck(method, cannumber)
 	local retval, failcode = cc.isSubscriptable(any)
 	if(!retval)then
 		return retval, failcode
-	end
-	if(isfunction(any.]]..method..[[))then
+	elseif(isfunction(any.]]..method..[[))then
 		return true
 	else
 		return false, "no_method"
@@ -34,6 +35,12 @@ local function compileMethodCheck(method, cannumber)
 ]]
 	return CompileString(fc, "cc_MethodCheck")
 end
+--//
+
+--\\
+ss["table"] = true
+ss["Entity"] = true
+ss["Panel"] = true
 --//
 
 --\\Generic Class check functions
@@ -66,10 +73,31 @@ cc.istable = function(any)
 end
 
 cc.isSubscriptable = function(any)
-	if(getmetatable(any) != nil)then
+	if(type(any) == "table" or getmetatable(any) != nil)then
 		return true
 	else
 		return false, "expected:subscriptable:got:"..type(any)
+	end
+end
+
+cc.isSpellSubscriptable = function(any) --Yay I love data mining and exploits (surely this will be exploited one day, or not..?)
+	local retval, failcode = cc.isSubscriptable(any)
+	if(!retval)then
+		return retval, failcode
+	elseif(any.SORCERY_SpellTableAllowed or (!any.SORCERY_SpellTableDisallowed and ss[type(any)]))then
+		return true
+	else
+		return false, "expected:spell_subscriptable:got:"..type(any)
+	end
+end
+cc.isSpellSetSubscriptable = function(any)
+	local retval, failcode = cc.isSpellSubscriptable
+	if(!retval)then
+		return retval, failcode
+	elseif(!isstring(any))then
+		return true
+	else
+		return false, "expected:spell_set_subscriptable:got:"..type(any)
 	end
 end
 
@@ -93,7 +121,7 @@ f["PUSH"] = {
 f["POP"] = {
 	func = function(int)
 		SORCERY_SPELL.stack[#SORCERY_SPELL.stack - ((int or 1) - 1)] = nil
-		SORCERY:ShiftTable(SORCERY_SPELL.stack)
+		SORCERY.Utils:ShiftTable(SORCERY_SPELL.stack)
 	end,
 }
 
@@ -103,7 +131,7 @@ f["POPMULTI"] = {
 		for i = 0, int - 1 do
 			SORCERY_SPELL.stack[#SORCERY_SPELL.stack] = nil
 		end
-		SORCERY:ShiftTable(SORCERY_SPELL.stack)
+		SORCERY.Utils:ShiftTable(SORCERY_SPELL.stack)
 	end,
 	args = {
 		cc.isnumber,
@@ -164,6 +192,52 @@ f["M_MUL"] = {
 }
 --//
 
+--\\Table utilization
+f["TABLE_GET"] = {
+	func = function(target, key)
+		SORCERY_CF("POPMULTI", 2)
+		SORCERY_CF("PUSH", SORCERY.Utils:GetSorceryTableValue(target, key))
+	end,
+	args = {
+		cc.isSpellSubscriptable,
+		cc.alwaysTrue,	--Is it though....
+	},
+}
+
+f["TABLE_SET"] = {
+	func = function(target, key, value)
+		SORCERY_CF("POPMULTI", 3)
+		SORCERY_CF("PUSH", SORCERY.Utils:SetSorceryTableValue(target, key, value))
+	end,
+	args = {
+		cc.isSpellSetSubscriptable,
+		cc.alwaysTrue,	--Is it though....
+		cc.alwaysTrue,
+	},
+}
+
+f["TABLE_APPEND"] = {
+	func = function(target, value)
+		SORCERY_CF("POPMULTI", 2)
+		SORCERY_CF("PUSH", SORCERY.Utils:SetSorceryTableValue(target, SORCERY.Utils:GetSorceryTableSize(target) + 1, value))
+	end,
+	args = {
+		cc.isSpellSetSubscriptable,
+		cc.alwaysTrue,
+	},
+}
+
+f["TABLE_SIZE"] = {
+	func = function(target)
+		SORCERY_CF"POP"
+		SORCERY_CF("PUSH", SORCERY.Utils:GetSorceryTableSize(target))
+	end,
+	args = {
+		cc.isSpellSubscriptable,
+	},
+}
+--//
+
 --\\Users
 f["POS"] = {
 	func = function(ent)
@@ -198,7 +272,9 @@ f["AIMVEC"] = {
 f["QTRACE"] = {
 	func = function(start, dir)
 		SORCERY_CF("POPMULTI", 2)
-		SORCERY_CF("PUSH", util.QuickTrace( start, dir, SORCERY_SPELL.entity).Entity)
+		local trace = {}
+		SORCERY.Utils:SetSorceryTable(trace, util.QuickTrace(start, dir, SORCERY_SPELL.entity))
+		SORCERY_CF("PUSH", trace)
 	end,
 	args = {
 		cc.isvector,

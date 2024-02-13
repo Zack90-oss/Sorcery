@@ -34,6 +34,16 @@ l["default"]["multiply"] = "m_mul"
 l["default"]["multiplied"] = "m_mul"
 --//
 
+--\\Table utilization
+l["default"]["get"] = "table_get"
+
+l["default"]["set"] = "table_set"
+
+l["default"]["append"] = "table_append"
+
+l["default"]["size"] = "table_size"
+--//
+
 --\\Pushers
 l["default"]["caster"] = "caster"
 l["default"]["me"] = "caster"

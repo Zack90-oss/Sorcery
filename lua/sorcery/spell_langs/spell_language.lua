@@ -22,6 +22,13 @@ l["m_inf"] = [[SORCERY_CF"M_INF"]]
 l["m_mul"] = [[SORCERY_CF"M_MUL"]]
 --//
 
+--\\Table utilization
+l["table_get"] = [[SORCERY_CF"TABLE_GET"]]
+l["table_set"] = [[SORCERY_CF"TABLE_SET"]]
+l["table_append"] = [[SORCERY_CF"TABLE_APPEND"]]
+l["table_size"] = [[SORCERY_CF"TABLE_SIZE"]]
+--//
+
 l["caster"] = [[SORCERY_CF"CASTER"]]
 l["entity"] = [[SORCERY_CF"ENTITY"]]
 
