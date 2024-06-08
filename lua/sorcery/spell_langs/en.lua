@@ -1,66 +1,97 @@
+local langname = "en"
+
+SORCERY.SpellLangsAliases["space"] = "spacing"
+SORCERY.SpellLangsAliases["spec"] = "special"
 SORCERY.SpellLangsAliases["english"] = "en"
 SORCERY.SpellLangsAliases["russian"] = "ru"
 
 SORCERY:RegisterStringLowerCodes(65, 90, 32)	--From A to Z, look at utf-8 table to create your own lowerings
 
-SORCERY.SpellLangs["en"] = SORCERY.SpellLangs["en"] or {}
-local l = SORCERY.SpellLangs["en"]
+SORCERY.SpellLangs[langname] = SORCERY.SpellLangs[langname] or {}
+local l = SORCERY.SpellLangs[langname]
 
 l["default"] = l["default"] or {}
-l["default"][" "] = " " -- Defines blank character; SHOULD be in every language, can define multiple blanks
-l["default"]["\n"] = " "
-l["default"]["\t"] = " "
-l["default"]["\v"] = " "
-l["default"][","] = " "
--- [":"] = " ",
-l["default"]["."] = "."
+l["default"]["languages:"] = {Code = "<<languages>>", Special = true}
 
-l["default"]["\""] = "\""	--String
-l["default"]["`"] = "`"		--Number
+l["default"]["pop"] = {Code = "POP"}
+l["default"]["erase"] = {Code = "POP"}
 
-l["default"]["languages:"] = "languages"
+l["default"]["say"] = {Code = "SAY"}
+l["default"]["said"] = {Code = "SAY"}
 
-l["default"]["pop"] = "pop"
-l["default"]["erase"] = "pop"
-
-l["default"]["say"] = "say"
-l["default"]["said"] = "say"
-
---\\Maths
-l["default"]["infinity"] = "m_inf"
-l["default"]["infinium"] = "m_inf"
-
-l["default"]["multiply"] = "m_mul"
-l["default"]["multiplied"] = "m_mul"
+--\\Quota
+l["default"]["say"] = {Code = "SAY"}
 --//
 
---\\Table utilization
-l["default"]["get"] = "table_get"
+--\\Maths
+l["default"]["infinity"] = {Code = "M_INF"}
+l["default"]["infinium"] = {Code = "M_INF"}
 
-l["default"]["set"] = "table_set"
+l["default"]["add"] = {Code = "ADD"}
+l["default"]["added"] = {Code = "ADD"}
+l["default"]["+"] = {Code = "ADD"}
 
-l["default"]["append"] = "table_append"
+l["default"]["subtract"] = {Code = "SUB"}
+l["default"]["subtracted"] = {Code = "SUB"}
+l["default"]["-"] = {Code = "SUB"}
 
-l["default"]["size"] = "table_size"
+l["default"]["multiply"] = {Code = "MUL"}
+l["default"]["multiplied"] = {Code = "MUL"}
+l["default"]["*"] = {Code = "MUL"}
+
+l["default"]["divide"] = {Code = "DIV"}
+l["default"]["divided"] = {Code = "DIV"}
+l["default"]["/"] = {Code = "DIV"}
+--//
+
+--\\Sorcery Table
+l["default"]["get from meta"] = {Code = "STABLE_GET"}
+
+l["default"]["set to meta"] = {Code = "STABLE_SET"}
+
+l["default"]["append to meta"] = {Code = "STABLE_APPEND"}
+
+l["default"]["size of meta"] = {Code = "STABLE_SIZE"}
+
+l["default"]["power of meta"] = {Code = "STABLE_POWER"}
+--//
+
+--\\Table
+l["default"]["create table"] = {Code = "TABLE_CREATE"}
+
+l["default"]["get"] = {Code = "TABLE_GET"}
+
+l["default"]["set"] = {Code = "TABLE_SET"}
+
+l["default"]["append"] = {Code = "TABLE_APPEND"}
 --//
 
 --\\Pushers
-l["default"]["caster"] = "caster"
-l["default"]["me"] = "caster"
-l["default"]["mine"] = "caster"
-l["default"]["i"] = "caster"
-l["default"]["my"] = "caster"
+l["default"]["caster"] = {Code = "CASTER"}
+l["default"]["me"] = {Code = "CASTER"}
+l["default"]["mine"] = {Code = "CASTER"}
+l["default"]["i"] = {Code = "CASTER"}
+l["default"]["my"] = {Code = "CASTER"}
 
-l["default"]["entity"] = "entity"
+l["default"]["entity"] = {Code = "ENTITY"}
+l["default"]["body"] = {Code = "ENTITY"}
 --//
 
 --\\Users
-l["default"]["position"] = "pos"
-l["default"]["location"] = "pos"
+l["default"]["size"] = {Code = "SIZE"}
 
-l["default"]["eyes"] = "eyepos"
+l["default"]["length"] = {Code = "LEN"}
 
-l["default"]["look"] = "aimvec"
+l["default"]["position"] = {Code = "POS"}
+l["default"]["location"] = {Code = "POS"}
 
-l["default"]["trace"] = "qtrace"
+l["default"]["eyes"] = {Code = "EYEPOS"}
+
+l["default"]["look"] = {Code = "AIMVEC"}
+
+l["default"]["trace"] = {Code = "QTRACE"}
+--//
+
+--\\Run
+l["default"]["run reason"] = {Code = "GET_CAST_REASON"}
 --//
