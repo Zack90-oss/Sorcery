@@ -1,5 +1,11 @@
 --; PLUGIN ???
 
+--\\Misc
+function SORCERY.GetRawFunctionCallCode(tbl)
+	return tbl.Code 
+end
+--//
+
 --\\Registration
 function SORCERY.RegisterSpellFunctions()
 	local rootFolder = SORCERY.SpellFunctionsFolder .. "/"
@@ -178,10 +184,6 @@ function SORCERY.ConstructFunctionCallCode(tbl)
 	else
 		return [[SORCERY_CF"]] .. tbl.Code .. [["]]
 	end
-end
-
-function SORCERY.GetRawFunctionCallCode(tbl)
-	return tbl.Code 
 end
 
 
@@ -455,7 +457,7 @@ function SORCERY.CallFunc(funcname, ...)
 			SORCERY.IgnoringQuotaUntilUnsetScope = systime
 		end
 		
-		functbl.func(unpack(args))
+		local retval = functbl.func(unpack(args))
 		
 		if(SORCERY.IgnoringQuotaUntilUnset)then
 			if(SORCERY.IgnoringQuotaUntilUnsetScope == systime)then
@@ -465,6 +467,8 @@ function SORCERY.CallFunc(funcname, ...)
 		else
 			SORCERY.IgnoringQuota = false
 		end
+		
+		return retval
 	end
 end
 
